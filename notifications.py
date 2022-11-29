@@ -1,5 +1,5 @@
-import smtplib
 import os
+import smtplib
 from datetime import datetime
 from datetime import date
 from email.mime.multipart import MIMEMultipart
@@ -10,6 +10,13 @@ from email import encoders
 import config
 
 def send_mail(image_path, body):
+    """Sends email message of found package-detection with bbox-drawn image attached.
+
+    Args:
+        image_path: path of the drawn-on image
+        body: string input of message to send
+    """
+
     file_name = os.path.basename(os.path.normpath(image_path))
     
     msg = MIMEMultipart()

@@ -26,15 +26,38 @@ class InferenceModel:
         self.detect_fn = tf.saved_model.load(model_path)
 
 def load_image_into_numpy_array(path):
+    """Converts raw image path to numpy array format.
+
+    Args:
+        path: raw image path
+    Returns:
+        numpy array converted image path
+    """
     return cv2.imread(path)
 
 def denormalize_image_bbox(bbox, im_height, im_width):
+    """Process bounding box input and denormalize coords based on image dims.
+
+    Args:
+        bbox: bounding box coordinates [ymin, xmin, ymax, xmax]
+        im_height: image height
+        im_width: image width
+    Returns:
+        [xmin, xmax, ymin, ymax]: processed bounding box coordinates
+    """
     ymin, xmin, ymax, xmax = bbox
     xmin, xmax, ymin, ymax = (xmin * im_width, xmax * im_width, ymin * im_height, ymax * im_height)
     xmin, xmax, ymin, ymax = int(xmin), int(xmax), int(ymin), int(ymax)
     return [xmin, xmax, ymin, ymax]
 
 def draw_bbox(image_np, bbox, display_text):
+    """Draws bounding box on the input np.array image
+    
+    Args:
+        image_np: numpy array image input
+        bbox: bounding box coordinates [xmin, xmax, ymin, ymax]
+        display_text: f'Package: {top_conf}%'
+    """
     xmin, xmax, ymin, ymax = bbox
     cv2.rectangle(image_np, (xmin, ymin), (xmax, ymax), (0, 255, 0), 1)
     cv2.putText(image_np, display_text, (xmin, ymin - 10), cv2.FONT_HERSHEY_PLAIN, 1, (0, 255, 0), 2)
@@ -53,6 +76,18 @@ def draw_bbox(image_np, bbox, display_text):
     cv2.line(image_np, (xmax, ymax), (xmax, ymax - line_width), (0, 255, 0), thickness=5)
 
 def detection_output_results(image_np, infer_results, threshold):
+    """Processes inference_results obtained from the InferenceModel class 
+       and selects detection of highest confidence.
+
+    Args:
+        image_np: numpy array image input
+        infer_results: inference output of detections from InferenceModel class
+        threshold: confidence threshold of detection outputs
+    Returns:
+        image_np: numpy array image input with drawn bounding box detection of highest confidence
+        top_conf: confidence of highest bounding box detection within input image
+    """
+
     im_height, im_width, _ = image_np.shape
     
     bboxs = infer_results['detection_boxes'][0].numpy()

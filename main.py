@@ -3,12 +3,11 @@ import cv2
 from datetime import datetime, timedelta
 
 import inference
-import notifications as notifs
 import utils
 import config
+import notifications as notifs
 
-def main_video():
-
+def video_inference():
     utils.check_dir_integrity()
     object_det_model = inference.InferenceModel(config.MODEL_PATH)
 
@@ -22,6 +21,9 @@ def main_video():
                                                                             infer_results, 
                                                                             config.DETECTION_CONF_THRESHOLD)
             
+            # if bbox conf > notification threshold:
+            # mail function is not on cooldown -> send mail of detection
+            # log detection data onto logging.csv
             if max_bb_conf > config.NOTIF_THRESHOLD:
 
                 curr_attempt_send = datetime.now()
@@ -39,7 +41,7 @@ def main_video():
     except KeyboardInterrupt:
         pass                
 
-def main_static_images():
+def image_inference():
 
     utils.check_dir_integrity()
     object_det_model = inference.InferenceModel(config.MODEL_PATH)
@@ -55,6 +57,9 @@ def main_static_images():
                                                                              infer_results, 
                                                                              config.DETECTION_CONF_THRESHOLD)
             
+            # if bbox conf > notification threshold:
+            # mail function is not on cooldown -> send mail of detection
+            # log detection data onto logging.csv
             if max_bb_conf > config.NOTIF_THRESHOLD:
 
                 curr_attempt_send = datetime.now()
@@ -72,11 +77,29 @@ def main_static_images():
     except KeyboardInterrupt:
         pass
 
+def inference_type(param):
+    """Defines the inference type to run the program as. 
+    'image' sets the program to run inference tests on images within a directory specified in the config file.
+    'video' sets the program to run inference on a video or attached camera. 
+
+    file path specified can be adjusted in the config file. 
+    for video inference for an attached camera, specify '0' as video_path
+
+    Args:
+        param: 'image' or 'video'
+    """
+    if param == 'image': inference.image_inference()
+    elif param == 'video': inference.video_inference()
+    else: print('Invalid Input: image/video')
+
+def main():
+    inference_category = 'image'
+    inference_type(inference_category)
+
 if __name__ == '__main__':
     start_time = time.time()
 
-    main_static_images() 
-    # main_video()
+    main()
 
     end_time = time.time()
     elapsed_time = end_time - start_time

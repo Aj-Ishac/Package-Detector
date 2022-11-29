@@ -9,6 +9,14 @@ import config
 
 
 def rand_image(images_dir):
+    """Returns random image from input image directory.
+
+    Args:
+        images_dir: Path directory of images folder.
+    Returns:
+        image_name: image name of the associated image path
+        image_path: image path of the randomly selected image
+    """
     image_paths = glob.glob(f"{images_dir}/*.jpg")
 
     image_path = random.choice(image_paths)
@@ -16,6 +24,8 @@ def rand_image(images_dir):
     return image_name, image_path
 
 def check_dir_integrity():
+    """Verifies folder dependencies exist and creates them if not.
+    """
     folder_list = ['exports', 'logs']
     for folder_name in folder_list:
         path = f'{os.getcwd()}/{folder_name}'
@@ -25,6 +35,13 @@ def check_dir_integrity():
             os.makedirs(path)
 
 def export_image(image):
+    """Writes image data of the input np.array image to disk.
+
+    Args:
+        image: input np.array of the image
+    Returns:
+        export_path: path of the exported image
+    """
     path = f'{os.getcwd()}\exports'
     file_count = 0 if len(os.listdir(path)) <= 0 else (len(os.listdir(path)))
     
@@ -39,6 +56,12 @@ def export_image(image):
     return export_path
 
 def logging(file_path, det_conf):
+    """Logs the detection data onto the associated logging.csv file
+
+    Args:
+        file_path: file path of the exported drawn-on image in reference to the detection
+        det_conf: confidence score value of the detection output
+    """
     csv_path = f'{os.getcwd()}\logs\logging.csv'
     if not os.path.isfile(csv_path):
         header = ['date', 'time', 'file_path', 'label', 'conf_score']
